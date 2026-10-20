@@ -31,6 +31,12 @@ try {
 
   fs.writeFileSync(path.join(root, "index.js"), "module.exports = 2;\n");
   assert.throws(() => pack(root, out), /unsealed tree/i, "a modified tracked file must fail closed");
+  git("add", "index.js");
+  let error, staged;
+  try {staged=pack(root,out);} catch(e) {error=e;}
+  if(staged) console.log(JSON.stringify({unexpectedAcceptedStagedPayload:execFileSync('tar',['-xzOf',staged.tarball,'package/index.js'],{encoding:'utf8'}),claimedHead:readTarballGitHead(staged.tarball)}));
+  assert.ok(error,'staged bytes differing from the claimed release HEAD must fail');
+  assert.match(error.message,/unsealed tree/i);
 } finally {
   fs.rmSync(root, { recursive: true, force: true });
   fs.rmSync(out, { recursive: true, force: true });

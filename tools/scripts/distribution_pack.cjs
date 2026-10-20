@@ -34,7 +34,7 @@ function headCommit(root) {
 }
 
 function assertSealedTree(root) {
-  const diff = spawnSync("git", ["diff", "--exit-code"], { cwd: root, stdio: "pipe" });
+  const diff = spawnSync("git", ["diff", "--exit-code", "HEAD", "--"], { cwd: root, stdio: "pipe" });
   if (diff.status !== 0) throw new Error("Refusing to pack an unsealed tree: tracked files differ from HEAD");
   const untracked = git(root, ["ls-files", "--others", "--exclude-standard"]);
   if (untracked) throw new Error("Refusing to pack an unsealed tree: untracked source files are present");
@@ -58,14 +58,18 @@ function findPackedTarball(destination) {
   return path.join(destination, candidates[0]);
 }
 
-function readTarballGitHead(tarball) {
+function readTarballManifest(tarball) {
   const result = spawnSync("tar", ["-xzOf", tarball, "package/package.json"], { encoding: "utf8" });
   if (result.error || result.status !== 0) throw new Error("Unable to read the packed candidate manifest");
   try {
-    return JSON.parse(result.stdout).gitHead ?? null;
+    return JSON.parse(result.stdout);
   } catch {
     throw new Error("The packed candidate manifest is not valid JSON");
   }
+}
+
+function readTarballGitHead(tarball) {
+  return readTarballManifest(tarball)?.gitHead ?? null;
 }
 
 function pack(root, destination, dependencies = {}) {
@@ -111,4 +115,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { pack, headCommit, assertSealedTree, readTarballGitHead, PACKAGE_NAME };
+module.exports = { pack, headCommit, assertSealedTree, readTarballGitHead, readTarballManifest, PACKAGE_NAME };

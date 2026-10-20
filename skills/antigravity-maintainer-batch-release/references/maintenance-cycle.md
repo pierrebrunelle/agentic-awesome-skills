@@ -19,7 +19,7 @@ npm run maintenance:cycle -- intake --state-dir /absolute/private/state
 ```
 
 Intake returns every PR, including each blocker and the required next action.
-A blocked first PR does not suppress the rest. Read the complete changed skill
+A blocked first PR does not suppress the rest. Intake requires an OPEN PR; closed, already-merged or unknown states stop before analysis or workflow approval and never return `prepared`. Exclude closed PRs; for a merged PR, use merge resume to verify ancestry without another write or repeated content review. Read the complete changed skill
 trees once; `npm run maintainer:dossier -- --prs 123,124 --output /absolute/private/dossier.json`
 provides immutable file inventories. `skills` describes current trees;
 `previousSkills` describes changed trees at the merge base, including deletions

@@ -13,8 +13,8 @@ try {
  const version=require('../../../package.json').version;
  const env={...process.env,GITHUB_REPOSITORY:'sickn33/agentic-awesome-skills'};
  const cli=mode=>spawnSync(process.execPath,['tools/scripts/distribution_manifest.cjs',mode,artifacts,'123','1'],{cwd:root,env,encoding:'utf8'});
- function tar(gitHead) {
-  fs.writeFileSync(path.join(payload,'package.json'),JSON.stringify({name:'agentic-awesome-skills',version,...(gitHead===undefined?{}:{gitHead})}));
+ function tar(gitHead, fields={}) {
+  fs.writeFileSync(path.join(payload,'package.json'),JSON.stringify({name:'agentic-awesome-skills',version,...(gitHead===undefined?{}:{gitHead}),...fields}));
   execFileSync('tar',['-czf',path.join(artifacts,'package.tgz'),'-C',path.dirname(payload),'package']);
  }
  tar(commit);assert.equal(cli('create').status,0);assert.equal(cli('verify').status,0);
@@ -27,5 +27,17 @@ try {
   fs.unlinkSync(path.join(artifacts,'distribution.json'));
   assert.notEqual(cli('create').status,0,'cannot seal a candidate without release identity');
  }
+ for(const fields of [{version:'0.0.0'},{name:'unrelated-package'}]) {
+  tar(commit,fields);
+  fs.writeFileSync(path.join(artifacts,'distribution.json'),JSON.stringify(createManifest(artifacts,provenance)));
+  const rejected=cli('verify');
+  assert.notEqual(rejected.status,0,'valid SHA/digests cannot authorize another npm package or version');
+  assert.match(rejected.stderr,/package (name|version)/i);
+  fs.unlinkSync(path.join(artifacts,'distribution.json'));
+  assert.notEqual(cli('create').status,0);
+ }
+ tar(commit);assert.equal(cli('create').status,0);
+ tar(commit,{version:'0.0.0'});
+ assert.match(cli('verify').stderr,/digest mismatch/,'tampered bytes must fail before semantic checks');
  console.log('Actual candidate CLI rejects missing/wrong embedded identity even with valid artifact digests');
 } finally {fs.rmSync(work,{recursive:true,force:true});}
