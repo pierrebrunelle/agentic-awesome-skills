@@ -50,7 +50,7 @@ ingest.add_query_route(path='/list', query=list_docs, method='get')
 ingest.add_query_route(path='/search', query=search_docs, method='post')
 ```
 
-`token_limit` needs `pip install tiktoken`, and the index calls OpenAI, so `OPENAI_API_KEY` must reach the daemon ([cli.md](cli.md#daemon)). `'sentence'` separators would add spaCy; a `sentence_transformer` index would add torch. `page` numbers PDF pages from 0 and is `None` for other formats.
+`token_limit` needs a separately reviewed tiktoken installation, and the index calls OpenAI, so `OPENAI_API_KEY` must reach the daemon ([cli.md](cli.md#daemon)). `'sentence'` separators would add spaCy; a `sentence_transformer` index would add torch. `page` numbers PDF pages from 0 and is `None` for other formats.
 
 ```bash
 pxt init
@@ -87,7 +87,7 @@ Media columns in JSON are URLs under `{prefix}/_pxt/media/...` (this file: `/api
 
 A computed column that raises during an insert or update route fails the request and stores nothing. The error body's `detail` is `{"error_code", "message", "retryable"}`, and a failed job's `error_detail` has the same shape; retry only when `retryable` is true. After a schema change, routes answer 409 until `pxt service update ... -f` restarts the service.
 
-Frontend types: `curl -fsS "$URL/openapi.json" -o openapi.json`, then `npx openapi-typescript openapi.json -o src/pixeltable.d.ts`. Each column in a route's `outputs` becomes a typed field, and the job-polling route is in the schema. Regenerate after changing routes. A hosted service needs its Cloud key in an `X-api-key` header, so call it from your app server, never from browser code.
+Frontend types: `curl -fsS "$URL/openapi.json" -o openapi.json`, then `openapi-typescript openapi.json -o src/pixeltable.d.ts`. Each column in a route's `outputs` becomes a typed field, and the job-polling route is in the schema. Regenerate after changing routes. A hosted service needs its Cloud key in an `X-api-key` header, so call it from your app server, never from browser code.
 
 No HTTP: apply, then insert from Python. [Self-hosting](https://docs.pixeltable.com/howto/deployment/overview).
 

@@ -11,7 +11,7 @@ Python 3.11+. There is no `pxt serve`, no `pxt deploy`, no `pxt app`, no `pxt db
 | Surface | Purpose | Requires |
 |---------|---------|----------|
 | **Catalog** | Inspect, query, mutate tables/views/dirs | `pip install pixeltable` |
-| **Schema / service** | Apply a `TableModel` file; run `FastAPIRouter` services | `pip install 'pixeltable[serve]'` for `pxt service` |
+| **Schema / service** | Apply a `TableModel` file; run `FastAPIRouter` services | `a separately installed and reviewed Pixeltable runtime with the serve extra` for `pxt service` |
 
 Verify: `pxt --help` and `pxt health`.
 
@@ -190,7 +190,7 @@ pxt schema diff app.py pxt://acme:main/prod    # 0 = in sync, 2 = drift, 1 = err
 
 ## Serving (`pxt service`)
 
-Runs the `FastAPIRouter` instances an application file declares. Requires `pip install 'pixeltable[serve]'`. Same file as the models: apply tables first, then start HTTP.
+Runs the `FastAPIRouter` instances an application file declares. Requires `a separately installed and reviewed Pixeltable runtime with the serve extra`. Same file as the models: apply tables first, then start HTTP.
 
 | Command | Description |
 |---------|-------------|
@@ -224,7 +224,7 @@ A service binds its tables when it starts. After `pxt schema update` changes one
 
 `pxt service logs NAME` reads a hosted service's log: `pxt://org:db/ingest` or `pxt://org:db/path/ingest`. `--since` accepts `30s`, `10m`, `1h`, `2d` (default `1h`), `--tail` is capped at 10,000 lines (default 200), and `--include-health` keeps health-probe requests. Hosted logs merge request records with console output, including startup tracebacks. A service on this machine is not readable through it: the command exits 1. Read `tail -50 "${PIXELTABLE_HOME:-$HOME/.pixeltable}/logs/services/<target>/<name>.log"`.
 
-**Tracing.** `service diff`, `service update` and `service run` take `--otel`, which emits OpenTelemetry traces and needs `pip install 'pixeltable[otel]'` (`serve` and `otel` are the only two extras). The setting belongs to the running service, not to the file: a service already running without it restarts when `update` is given the flag, dropping the flag restarts it again, and `diff --otel` reports tracing that is off but was asked for as a pending change.
+**Tracing.** `service diff`, `service update` and `service run` take `--otel`, which emits OpenTelemetry traces and needs `a separately reviewed Pixeltable runtime with the otel extra` (`serve` and `otel` are the only two extras). The setting belongs to the running service, not to the file: a service already running without it restarts when `update` is given the flag, dropping the flag restarts it again, and `diff --otel` reports tracing that is off but was asked for as a pending change.
 
 Do **not** write `[tool.pixeltable.service]` TOML or call `pxt serve`.
 
